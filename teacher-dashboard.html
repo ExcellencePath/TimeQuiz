@@ -150,7 +150,7 @@ body{display:flex;flex-direction:column;}
       <span>الطالب</span>
       <span>الدرجة</span>
       <span>صح / خطأ</span>
-      <span>وقت التسليم</span>
+      <span>مدة الاستغراق</span>
       <span>التسليم</span>
     </div>
     <div id="students-list">
@@ -224,12 +224,12 @@ function render() {
     const rc = {exit:'r-exit',manual:'r-manual',time:'r-time'}[s.reason]||'r-exit';
     const rl = {exit:'⚡ خروج',manual:'✅ يدوي',time:'⏰ وقت'}[s.reason]||'—';
     const m=Math.floor(s.elapsed/60), sec=s.elapsed%60;
-    const time = s.submittedAt || `${m}د ${sec}ث`;
+    const elapsed = `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
     return `<div class="stu-row" onclick="openDrawer(${i})">
       <span class="stu-name">👤 ${esc(s.name)}</span>
       <span><span class="score-pill ${pc}">${s.pct}%</span></span>
       <span class="cell-muted">${s.correct}✓  ${s.wrong}✗</span>
-      <span class="cell-muted" style="font-size:.76rem">${time}</span>
+      <span class="cell-muted">⏱ ${elapsed}</span>
       <span><span class="rtag ${rc}">${rl}</span></span>
     </div>`;
   }).join('');
