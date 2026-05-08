@@ -378,8 +378,6 @@ function refreshProgress() {
   const done = Object.keys(answers).filter(k=>answers[k]!==undefined).length;
   document.getElementById('prog-bar').style.width = (done/TOTAL*100)+'%';
   document.getElementById('prog-txt').textContent = `${done}/${TOTAL}`;
-  const rem = TOTAL - done;
-  document.getElementById('unanswered').textContent = rem > 0 ? `⚠️ ${rem} سؤال لم تُجب عليه` : '';
 }
 
 // ═══════════════════════════════════
@@ -403,14 +401,29 @@ function attachGuards() {
   document.addEventListener('visibilitychange', onVis);
   window.addEventListener('pagehide', onExit);
   window.addEventListener('beforeunload', onExit);
+  window.addEventListener('blur', onBlur);
+  document.addEventListener('mouseleave', onMouseLeave);
+  // فحص كل ثانية إذا الصفحة مخفية
+  window._guardInterval = setInterval(() => {
+    if (examActive && document.hidden) finalize('exit');
+  }, 1000);
 }
 function removeGuards() {
   document.removeEventListener('visibilitychange', onVis);
   window.removeEventListener('pagehide', onExit);
   window.removeEventListener('beforeunload', onExit);
+  window.removeEventListener('blur', onBlur);
+  document.removeEventListener('mouseleave', onMouseLeave);
+  clearInterval(window._guardInterval);
 }
 function onVis() { if (examActive && document.visibilityState==='hidden') finalize('exit'); }
 function onExit() { if (examActive) finalize('exit'); }
+function onBlur() { if (examActive && document.hidden) finalize('exit'); }
+function onMouseLeave(e) {
+  if (!examActive) return;
+  // إذا الماوس خرج من أعلى الصفحة (تبويب جديد)
+  if (e.clientY <= 0) finalize('exit');
+}
 function manualSubmit() { finalize('manual'); }
 
 // ═══════════════════════════════════
