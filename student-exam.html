@@ -296,6 +296,20 @@ let finalized = false;
 function startExam() {
   studentName = document.getElementById('inp-name').value.trim();
   if (!studentName) { alert('اكتب اسمك أولاً'); return; }
+
+  // تحقق إذا الطالب اختبر مسبقاً
+  const submitted = JSON.parse(localStorage.getItem('exam_submitted') || '[]');
+  const nameKey = studentName.trim().toLowerCase();
+  if (submitted.includes(nameKey)) {
+    document.getElementById('entry-screen').innerHTML = `
+      <div style="text-align:center;padding:2rem">
+        <div style="font-size:3rem;margin-bottom:1rem">🔒</div>
+        <div style="font-family:'Tajawal',sans-serif;font-size:1.5rem;font-weight:900;color:#ef4444;margin-bottom:.5rem">تم تسليم اختبارك مسبقاً</div>
+        <div style="color:#94a3b8;font-size:.9rem">لا يمكن أداء الاختبار أكثر من مرة</div>
+      </div>`;
+    return;
+  }
+
   startedAt = Date.now(); examActive = true;
   document.getElementById('entry-screen').style.display = 'none';
   const es = document.getElementById('exam-screen');
@@ -403,10 +417,6 @@ function attachGuards() {
   window.addEventListener('beforeunload', onExit);
   window.addEventListener('blur', onBlur);
   document.addEventListener('mouseleave', onMouseLeave);
-  // فحص كل ثانية إذا الصفحة مخفية
-  window._guardInterval = setInterval(() => {
-    if (examActive && document.hidden) finalize('exit');
-  }, 1000);
 }
 function removeGuards() {
   document.removeEventListener('visibilitychange', onVis);
@@ -414,14 +424,15 @@ function removeGuards() {
   window.removeEventListener('beforeunload', onExit);
   window.removeEventListener('blur', onBlur);
   document.removeEventListener('mouseleave', onMouseLeave);
-  clearInterval(window._guardInterval);
 }
 function onVis() { if (examActive && document.visibilityState==='hidden') finalize('exit'); }
 function onExit() { if (examActive) finalize('exit'); }
-function onBlur() { if (examActive && document.hidden) finalize('exit'); }
+function onBlur() {
+  // انتظر 300ms — إذا الصفحة فعلاً مخفية بعدها ينهي
+  setTimeout(() => { if (examActive && document.hidden) finalize('exit'); }, 300);
+}
 function onMouseLeave(e) {
   if (!examActive) return;
-  // إذا الماوس خرج من أعلى الصفحة (تبويب جديد)
   if (e.clientY <= 0) finalize('exit');
 }
 function manualSubmit() { finalize('manual'); }
@@ -433,6 +444,13 @@ function finalize(reason) {
   if (finalized || !examActive) return;
   finalized = true; examActive = false;
   clearInterval(examTimer); removeGuards();
+
+  // احفظ اسم الطالب عشان ما يكرر الاختبار
+  try {
+    const submitted = JSON.parse(localStorage.getItem('exam_submitted') || '[]');
+    submitted.push(studentName.trim().toLowerCase());
+    localStorage.setItem('exam_submitted', JSON.stringify(submitted));
+  } catch(e) {}
 
   const snap = calcResult(reason);
 
@@ -532,7 +550,26 @@ function showResult(snap) {
   if(snap.pct>=80){document.getElementById('res-icon').textContent='🏆';document.getElementById('res-title').textContent='ممتاز!';}
   else if(snap.pct>=60){document.getElementById('res-icon').textContent='✅';document.getElementById('res-title').textContent='جيد!';}
   else{document.getElementById('res-icon').textContent='📚';document.getElementById('res-title').textContent='تحتاج مراجعة';}
+
+  // قفل الجهاز نهائياً
+  try { localStorage.setItem('exam_device_locked', '1'); } catch(e){}
 }
+
+// ═══════════════════════════════════
+// CHECK DEVICE LOCK ON LOAD
+// ═══════════════════════════════════
+window.addEventListener('load', () => {
+  if (localStorage.getItem('exam_device_locked') === '1') {
+    document.body.innerHTML = `
+      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#06090f;font-family:'Cairo',sans-serif">
+        <div style="text-align:center;padding:2.5rem;background:#111b2e;border:1px solid #1d2c43;border-radius:20px;max-width:380px;width:90%;box-shadow:0 30px 60px #00000099">
+          <div style="font-size:4rem;margin-bottom:.8rem">🔒</div>
+          <div style="font-family:'Tajawal',sans-serif;font-size:1.6rem;font-weight:900;color:#ef4444;margin-bottom:.6rem">هذا الجهاز مقفل</div>
+          <div style="color:#94a3b8;font-size:.9rem;line-height:1.7">تم تسليم الاختبار من هذا الجهاز مسبقاً<br>لا يمكن إعادة الاختبار مرة أخرى</div>
+        </div>
+      </div>`;
+  }
+});
 </script>
 </body>
 </html>
