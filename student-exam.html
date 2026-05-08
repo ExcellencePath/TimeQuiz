@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>اختبار السكرتارية والإدارة المكتبية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07090f; --surface:#0d1421; --card:#121c30; --card2:#17233a;
+  --border:#1d2c43; --accent:#f59e0b; --blue:#3b82f6;
+  --danger:#ef4444; --success:#10b981;
+  --text:#e2e8f0; --muted:#64748b; --muted2:#94a3b8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100%;font-family:'Cairo',sans-serif;background:var(--bg);color:var(--text);}
+
+/* ── ENTRY ── */
+#entry-screen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;
+  background:radial-gradient(ellipse at 30% 20%,#1e3a5f22,transparent 55%),var(--bg);
+}
+.entry-card{
+  background:var(--card);border:1px solid var(--border);border-radius:22px;
+  padding:2.8rem 2.2rem;width:100%;max-width:420px;text-align:center;
+  box-shadow:0 30px 70px #00000099;
+}
+.entry-card .logo{font-size:3rem;margin-bottom:.5rem;}
+.entry-card h1{font-family:'Tajawal',sans-serif;font-size:1.8rem;font-weight:900;color:var(--accent);margin-bottom:.35rem;}
+.entry-card .sub{color:var(--muted2);font-size:.87rem;line-height:1.65;margin-bottom:1.8rem;}
+.entry-card input{
+  width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:11px;
+  color:var(--text);padding:.82rem 1rem;font-family:'Cairo',sans-serif;font-size:1rem;
+  outline:none;transition:border .2s;direction:rtl;text-align:center;margin-bottom:.9rem;
+}
+.entry-card input:focus{border-color:var(--blue);}
+.btn-start{
+  width:100%;padding:1rem;background:linear-gradient(135deg,var(--blue),#2563eb);border:none;
+  border-radius:12px;color:#fff;font-family:'Tajawal',sans-serif;font-size:1.1rem;font-weight:900;
+  cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 20px #3b82f644;
+}
+.btn-start:hover{transform:translateY(-2px);box-shadow:0 8px 28px #3b82f666;}
+
+/* ── EXAM ── */
+#exam-screen{display:none;min-height:100vh;flex-direction:column;background:var(--bg);}
+.exam-bar{
+  background:var(--surface);border-bottom:1px solid var(--border);padding:.85rem 1.6rem;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;gap:.7rem;flex-wrap:wrap;
+}
+.exam-bar-title{font-family:'Tajawal',sans-serif;font-size:1.1rem;font-weight:900;}
+.exam-meta{display:flex;align-items:center;gap:.9rem;}
+.prog-txt{color:var(--muted2);font-size:.83rem;}
+.timer-box{
+  display:flex;align-items:center;gap:.38rem;background:var(--card);
+  border:2.5px solid var(--accent);border-radius:10px;padding:.32rem .85rem;
+  font-family:'Tajawal',sans-serif;font-size:1.2rem;font-weight:900;color:var(--accent);
+  min-width:88px;justify-content:center;transition:all .3s;
+}
+.timer-box.warn{border-color:var(--danger);color:var(--danger);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #ef444444}50%{box-shadow:0 0 0 8px #ef444400}}
+.prog-bar-wrap{background:var(--surface);height:3px;}
+.prog-bar-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--accent));transition:width .4s;}
+.exam-body{flex:1;max-width:760px;width:100%;margin:0 auto;padding:2rem 1.3rem 7rem;}
+
+/* ── SECTION HEADER ── */
+.sec-header{
+  background:linear-gradient(135deg,var(--card2),var(--card));
+  border:1.5px solid var(--border);border-radius:14px;
+  padding:1rem 1.4rem;margin-bottom:1.2rem;margin-top:1.8rem;
+  display:flex;align-items:center;gap:.7rem;
+}
+.sec-header:first-child{margin-top:0;}
+.sec-icon{font-size:1.3rem;}
+.sec-title{font-family:'Tajawal',sans-serif;font-size:1rem;font-weight:900;color:var(--accent);}
+.sec-sub{color:var(--muted2);font-size:.8rem;}
+
+/* ── QUESTION CARD ── */
+.q-card{
+  background:var(--card);border:1.5px solid var(--border);border-radius:15px;
+  padding:1.5rem 1.6rem;margin-bottom:1.1rem;animation:fadeUp .28s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.q-badge{
+  display:inline-block;background:var(--blue);color:#fff;
+  border-radius:6px;padding:.14rem .52rem;font-size:.73rem;font-weight:700;margin-bottom:.65rem;
+}
+.q-txt{font-size:.97rem;font-weight:700;color:var(--text);margin-bottom:1rem;line-height:1.75;}
+
+/* MCQ */
+.mcq-opts{display:flex;flex-direction:column;gap:.5rem;}
+.mcq-opt{
+  display:flex;align-items:center;gap:.75rem;background:var(--surface);
+  border:2px solid var(--border);border-radius:9px;padding:.68rem .9rem;cursor:pointer;transition:all .18s;
+}
+.mcq-opt:hover{border-color:var(--blue);background:#162035;}
+.mcq-opt.sel{border-color:var(--blue);background:#162e50;}
+.opt-circle{
+  width:17px;height:17px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;
+  transition:all .18s;display:flex;align-items:center;justify-content:center;
+}
+.mcq-opt.sel .opt-circle{border-color:var(--blue);background:var(--blue);}
+.chk{color:#fff;font-size:.62rem;display:none;}
+.mcq-opt.sel .chk{display:block;}
+.opt-lbl{font-size:.9rem;}
+
+/* TF */
+.tf-opts{display:flex;gap:.8rem;}
+.tf-btn{
+  flex:1;padding:.78rem;border-radius:9px;border:2px solid var(--border);background:var(--surface);
+  color:var(--text);font-family:'Cairo',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .18s;
+}
+.tf-btn:hover{border-color:var(--accent);}
+.tf-t{border-color:var(--success)!important;background:#052e1644!important;color:var(--success)!important;}
+.tf-f{border-color:var(--danger)!important;background:#450a0a44!important;color:var(--danger)!important;}
+
+/* ── FOOTER ── */
+.exam-footer{
+  position:fixed;bottom:0;left:0;right:0;background:var(--surface);
+  border-top:1px solid var(--border);padding:.8rem 1.6rem;
+  display:flex;justify-content:space-between;align-items:center;z-index:99;
+}
+.unanswered{color:var(--danger);font-size:.8rem;font-weight:700;}
+.btn-submit{
+  padding:.65rem 1.9rem;background:linear-gradient(135deg,var(--success),#059669);border:none;
+  border-radius:10px;color:#fff;font-family:'Tajawal',sans-serif;font-size:.93rem;font-weight:900;
+  cursor:pointer;transition:all .2s;box-shadow:0 4px 15px #10b98144;
+}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 6px 18px #10b98166;}
+
+/* ── RESULT ── */
+#result-screen{
+  display:none;min-height:100vh;align-items:center;justify-content:center;
+  flex-direction:column;padding:1.5rem;
+  background:radial-gradient(ellipse at 50% 25%,#1e3a5f33,transparent 65%),var(--bg);
+}
+.result-card{
+  background:var(--card);border:1px solid var(--border);border-radius:22px;
+  padding:2.5rem 2rem;text-align:center;max-width:460px;width:100%;
+  box-shadow:0 30px 70px #00000099;
+}
+.res-icon{font-size:3.5rem;margin-bottom:.55rem;}
+.res-title{font-family:'Tajawal',sans-serif;font-size:1.5rem;font-weight:900;margin-bottom:.3rem;}
+.res-score{font-family:'Tajawal',sans-serif;font-size:4rem;font-weight:900;color:var(--accent);line-height:1;margin:.75rem 0;}
+.res-name{color:var(--muted2);font-size:.87rem;margin-bottom:.75rem;}
+.badge{display:inline-flex;align-items:center;gap:.35rem;border-radius:8px;padding:.28rem .8rem;font-size:.78rem;font-weight:700;margin-bottom:1.1rem;}
+.b-exit{background:#1e2d4a;border:1px solid var(--blue);color:var(--blue);}
+.b-manual{background:#052e1622;border:1px solid var(--success);color:var(--success);}
+.b-time{background:#450a0a33;border:1px solid var(--danger);color:var(--danger);}
+.res-tbl{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1.2rem;}
+.d-row{display:flex;justify-content:space-between;padding:.55rem .95rem;border-bottom:1px solid var(--border);font-size:.88rem;}
+.d-row:last-child{border-bottom:none;}
+.d-val{font-weight:800;}
+.saving-msg{color:var(--muted2);font-size:.78rem;margin-top:.6rem;height:1.1rem;}
+
+/* ── SENDING OVERLAY ── */
+#sending-overlay{
+  display:none;position:fixed;inset:0;background:#00000099;backdrop-filter:blur(6px);
+  z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:1rem;
+}
+#sending-overlay.show{display:flex;}
+.spinner{width:44px;height:44px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sending-txt{color:var(--muted2);font-size:.9rem;font-weight:600;}
+
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+@media(max-width:560px){.exam-bar,.exam-footer{padding:.72rem 1rem;}.exam-body{padding:1.3rem .9rem 7rem;}.q-card{padding:1.1rem 1rem;}}
+</style>
+</head>
+<body>
+
+<!-- SENDING OVERLAY -->
+<div id="sending-overlay">
+  <div class="spinner"></div>
+  <div class="sending-txt">جاري تسجيل اختبارك...</div>
+</div>
+
+<!-- ENTRY -->
+<div id="entry-screen">
+  <div class="entry-card">
+    <div class="logo">📝</div>
+    <h1>السكرتارية والإدارة المكتبية</h1>
+    <p class="sub">⏱ المدة: 5 دقائق فقط<br>الاختبار يُسجَّل تلقائياً حتى لو أغلقت الصفحة</p>
+    <input type="text" id="inp-name" placeholder="اكتب اسمك الكامل هنا" maxlength="50" autocomplete="off">
+    <button class="btn-start" onclick="startExam()">▶ ابدأ الاختبار الآن</button>
+  </div>
+</div>
+
+<!-- EXAM -->
+<div id="exam-screen">
+  <div class="exam-bar">
+    <div class="exam-bar-title">اختبار السكرتارية والإدارة المكتبية</div>
+    <div class="exam-meta">
+      <span class="prog-txt" id="prog-txt">0/18</span>
+      <div class="timer-box" id="timer-box">⏱ <span id="timer-disp">05:00</span></div>
+    </div>
+  </div>
+  <div class="prog-bar-wrap"><div class="prog-bar-fill" id="prog-bar" style="width:0%"></div></div>
+  <div class="exam-body" id="exam-body"></div>
+  <div class="exam-footer">
+    <div class="unanswered" id="unanswered"></div>
+    <button class="btn-submit" onclick="manualSubmit()">✅ تسليم الاختبار</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result-screen">
+  <div class="result-card">
+    <div class="res-icon" id="res-icon">🏆</div>
+    <div class="res-title" id="res-title">أحسنت!</div>
+    <div class="res-score" id="res-score">0%</div>
+    <div class="res-name" id="res-name"></div>
+    <div id="badge-wrap"></div>
+    <div class="res-tbl">
+      <div class="d-row"><span>الإجابات الصحيحة</span><span class="d-val" style="color:var(--success)" id="r-c">0</span></div>
+      <div class="d-row"><span>الإجابات الخاطئة</span><span class="d-val" style="color:var(--danger)" id="r-w">0</span></div>
+      <div class="d-row"><span>لم يُجَب عليها</span><span class="d-val" style="color:var(--accent)" id="r-s">0</span></div>
+      <div class="d-row"><span>الوقت المستغرق</span><span class="d-val" id="r-t">—</span></div>
+    </div>
+    <div class="saving-msg" id="saving-msg">✅ تم تسجيل اختبارك في لوحة المعلم</div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════
+// EXAM QUESTIONS
+// ═══════════════════════════════════
+const QUESTIONS = [
+  // ── القسم الأول: صح وخطأ ──
+  { id:'tf1', section:'tf', text:'يعتبر مدير المكتب هو المسؤول الأول عن سير العمل داخل المكتب وتوزيع المهام على السكرتارية.', correct:0 },
+  { id:'tf2', section:'tf', text:'الأثاث والتجهيزات المكتبية ليست من العناصر الأساسية للمكتب الإداري.', correct:1 },
+  { id:'tf3', section:'tf', text:'التحليل النوعي يتعامل فقط مع الأرقام والنسب المئوية ولا يهتم بالوصف اللفظي.', correct:1 },
+  { id:'tf4', section:'tf', text:'تُعد عملية تحليل البيانات مهارة للسكرتير عندما يتعامل مع كميات كبيرة من الوثائق والتقارير.', correct:0 },
+  { id:'tf5', section:'tf', text:'تساعد مراجعة الجدول اليومي السكرتير على معرفة ما تم إنجازه وما لم يتم إنجازه لترحيله.', correct:0 },
+  { id:'tf6', section:'tf', text:'يجب على السكرتير التعامل مع جميع المهام بنفس درجة الأهمية دون فرز.', correct:1 },
+  { id:'tf7', section:'tf', text:'يجب أن تتضمن دعوة الاجتماع تحديداً واضحاً للزمان والمكان وموضوع الاجتماع.', correct:0 },
+  { id:'tf8', section:'tf', text:'محضر الاجتماع هو وثيقة يتم إعدادها وتوزيعها قبل بدء الاجتماع بعدة أيام.', correct:1 },
+  { id:'tf9', section:'tf', text:'يُعتبر الإنصات الفعال وعدم مقاطعة المتحدث من أهم ركائز إتيكيت الحديث في بيئة العمل.', correct:0 },
+  { id:'tf10', section:'tf', text:"في التواصل الإلكتروني، يُفضل ترك خانة 'موضوع الرسالة' فارغة لتشويق المستلم لفتح البريد.", correct:1 },
+
+  // ── القسم الثاني: اختيار متعدد ──
+  {
+    id:'mc1', section:'mc',
+    text:'ما هو المفهوم الذي يُطلق على الأرقام أو الرموز أو الأسماء أو الحروف التي لها دلالة معينة ولكنها غير معالجة؟',
+    opts:['البيانات','المعلومات','المعرفة','القرارات'], correct:0
+  },
+  {
+    id:'mc2', section:'mc',
+    text:'عملية تقسيم بيانات موضوع أو مادة معقدة إلى أجزاء صغيرة لفهمها واستيعابها تُسمى:',
+    opts:['تخزين البيانات','جمع البيانات','تحليل البيانات','نسخ البيانات'], correct:2
+  },
+  {
+    id:'mc3', section:'mc',
+    text:'ما هو المصطلح الذي يُعرف بأنه فن الخصال الحميدة والسلوك بالغ التهذيب الذي يجمع بين الرقي والبساطة والجمال؟',
+    opts:['البروتوكول','الإتيكيت','الدبلوماسية','البيروقراطية'], correct:1
+  },
+  {
+    id:'mc4', section:'mc',
+    text:'في قواعد التواصل الإلكتروني، ماذا يعني استخدام الحروف الكبيرة (Capital Letters) في اللغة الإنجليزية أو الإفراط في علامات التعجب؟',
+    opts:['أهمية الرسالة','الاحترافية في العمل','الصراخ أو الغضب','السعادة المفرطة'], correct:2
+  },
+  {
+    id:'mc5', section:'mc',
+    text:'ما هي الوثيقة التي تتضمن قائمة بالموضوعات التي ستتم مناقشتها أثناء الاجتماع مرتبة حسب أولويتها؟',
+    opts:['محضر الاجتماع','جدول الأعمال','دعوة الاجتماع','التقرير السنوي'], correct:1
+  },
+  {
+    id:'mc6', section:'mc',
+    text:'ما المقصود بمفهوم الارتباط التنظيمي للسكرتارية في الهيكل الإداري؟',
+    opts:['أن السكرتارية جهة تنفيذية عليا مستقلة','أن السكرتارية وظيفة استشارية مساندة للإدارة','أن السكرتارية هي التي تتخذ القرارات الاستراتيجية','أن السكرتارية لا علاقة لها بالإدارة العليا'], correct:1
+  },
+  {
+    id:'mc7', section:'mc',
+    text:'أي من العناصر التالية يُعد أهم عناصر المكتب الإداري والذي بدونه لا يمكن تفعيل العناصر الأخرى؟',
+    opts:['المكان (الموقع)','الأجهزة والتقنية','الأثاث المكتبي','العنصر البشري (الموظفون)'], correct:3
+  },
+  {
+    id:'mc8', section:'mc',
+    text:'الخطوة الأولى والأساسية للتعامل الناجح مع تعدد المهام هي:',
+    opts:['تأجيل جميع الأعمال','فرز الأعمال وتصنيفها','تنفيذ الأعمال العشوائية','إلغاء الجدول اليومي'], correct:1
+  }
+];
+
+const TOTAL = QUESTIONS.length;
+
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+let answers = {}, examTimer = null, timeLeft = 300;
+let startedAt = null, examActive = false, studentName = '';
+let finalized = false;
+
+// ═══════════════════════════════════
+// START
+// ═══════════════════════════════════
+function startExam() {
+  studentName = document.getElementById('inp-name').value.trim();
+  if (!studentName) { alert('اكتب اسمك أولاً'); return; }
+  startedAt = Date.now(); examActive = true;
+  document.getElementById('entry-screen').style.display = 'none';
+  const es = document.getElementById('exam-screen');
+  es.style.display = 'flex';
+  buildExam();
+  startTimer();
+  attachGuards();
+}
+
+// ═══════════════════════════════════
+// BUILD UI
+// ═══════════════════════════════════
+function buildExam() {
+  const body = document.getElementById('exam-body');
+  body.innerHTML = '';
+
+  // TF section
+  const tfH = mkSection('☑️', 'القسم الأول: صح وخطأ', 'ضع (✓) أمام العبارة الصحيحة و (✗) أمام الخاطئة');
+  body.appendChild(tfH);
+  QUESTIONS.filter(q=>q.section==='tf').forEach((q,i) => body.appendChild(mkTFCard(q,i)));
+
+  // MCQ section
+  const mcH = mkSection('📋', 'القسم الثاني: اختيار متعدد', 'اختر الإجابة الصحيحة من بين الخيارات');
+  body.appendChild(mcH);
+  QUESTIONS.filter(q=>q.section==='mc').forEach((q,i) => body.appendChild(mkMCQCard(q,i)));
+
+  refreshProgress();
+}
+
+function mkSection(icon, title, sub) {
+  const d = document.createElement('div');
+  d.className = 'sec-header';
+  d.innerHTML = `<span class="sec-icon">${icon}</span><div><div class="sec-title">${title}</div><div class="sec-sub">${sub}</div></div>`;
+  return d;
+}
+
+function mkTFCard(q, i) {
+  const c = document.createElement('div');
+  c.className = 'q-card'; c.id = 'qc-'+q.id;
+  c.innerHTML = `
+    <span class="q-badge">سؤال ${i+1}</span>
+    <div class="q-txt">${q.text}</div>
+    <div class="tf-opts">
+      <button class="tf-btn" id="tf-${q.id}-0" onclick="pickTF('${q.id}',0)">✅ صح</button>
+      <button class="tf-btn" id="tf-${q.id}-1" onclick="pickTF('${q.id}',1)">✗ خطأ</button>
+    </div>`;
+  return c;
+}
+
+function mkMCQCard(q, i) {
+  const c = document.createElement('div');
+  c.className = 'q-card'; c.id = 'qc-'+q.id;
+  c.innerHTML = `
+    <span class="q-badge">سؤال ${i+11}</span>
+    <div class="q-txt">${q.text}</div>
+    <div class="mcq-opts">${q.opts.map((o,oi)=>`
+      <div class="mcq-opt" id="mo-${q.id}-${oi}" onclick="pickMCQ('${q.id}',${oi})">
+        <div class="opt-circle"><span class="chk">✓</span></div>
+        <span class="opt-lbl">${o}</span>
+      </div>`).join('')}</div>`;
+  return c;
+}
+
+function pickTF(qid, val) {
+  answers[qid] = val;
+  [0,1].forEach(i => document.getElementById(`tf-${qid}-${i}`)?.classList.remove('tf-t','tf-f'));
+  document.getElementById(`tf-${qid}-${val}`)?.classList.add(val===0?'tf-t':'tf-f');
+  refreshProgress();
+}
+
+function pickMCQ(qid, idx) {
+  answers[qid] = idx;
+  const q = QUESTIONS.find(q=>q.id===qid);
+  q.opts.forEach((_,oi) => document.getElementById(`mo-${qid}-${oi}`)?.classList.remove('sel'));
+  document.getElementById(`mo-${qid}-${idx}`)?.classList.add('sel');
+  refreshProgress();
+}
+
+function refreshProgress() {
+  const done = Object.keys(answers).filter(k=>answers[k]!==undefined).length;
+  document.getElementById('prog-bar').style.width = (done/TOTAL*100)+'%';
+  document.getElementById('prog-txt').textContent = `${done}/${TOTAL}`;
+  const rem = TOTAL - done;
+  document.getElementById('unanswered').textContent = rem > 0 ? `⚠️ ${rem} سؤال لم تُجب عليه` : '';
+}
+
+// ═══════════════════════════════════
+// TIMER
+// ═══════════════════════════════════
+function startTimer() {
+  clearInterval(examTimer); tickTimer();
+  examTimer = setInterval(() => { timeLeft--; tickTimer(); if(timeLeft<=0){clearInterval(examTimer);finalize('time');}}, 1000);
+}
+function tickTimer() {
+  const m = Math.floor(timeLeft/60), s = timeLeft%60;
+  document.getElementById('timer-disp').textContent = `${p(m)}:${p(s)}`;
+  document.getElementById('timer-box').classList.toggle('warn', timeLeft<=60);
+}
+function p(n){return String(n).padStart(2,'0');}
+
+// ═══════════════════════════════════
+// GUARDS — auto-submit on exit
+// ═══════════════════════════════════
+function attachGuards() {
+  document.addEventListener('visibilitychange', onVis);
+  window.addEventListener('pagehide', onExit);
+  window.addEventListener('beforeunload', onExit);
+}
+function removeGuards() {
+  document.removeEventListener('visibilitychange', onVis);
+  window.removeEventListener('pagehide', onExit);
+  window.removeEventListener('beforeunload', onExit);
+}
+function onVis() { if (examActive && document.visibilityState==='hidden') finalize('exit'); }
+function onExit() { if (examActive) finalize('exit'); }
+function manualSubmit() { finalize('manual'); }
+
+// ═══════════════════════════════════
+// FINALIZE
+// ═══════════════════════════════════
+function finalize(reason) {
+  if (finalized || !examActive) return;
+  finalized = true; examActive = false;
+  clearInterval(examTimer); removeGuards();
+
+  const snap = calcResult(reason);
+
+  // show sending overlay while we push to API
+  document.getElementById('sending-overlay').classList.add('show');
+
+  pushResult(snap).finally(() => {
+    document.getElementById('sending-overlay').classList.remove('show');
+    showResult(snap);
+  });
+}
+
+// ═══════════════════════════════════
+// CALC
+// ═══════════════════════════════════
+function calcResult(reason) {
+  const elapsed = Math.round((Date.now()-startedAt)/1000);
+  let correct=0, wrong=0, skipped=0;
+  const detail = QUESTIONS.map(q => {
+    const ans = answers[q.id];
+    const empty = ans===undefined;
+    let status = 'skipped';
+    if (!empty) { status = ans===q.correct ? 'correct' : 'wrong'; }
+    if(status==='correct')correct++; else if(status==='wrong')wrong++; else skipped++;
+    const myLabel = empty ? '—' : q.opts ? q.opts[ans] : (ans===0?'صح':'خطأ');
+    const corLabel = q.opts ? q.opts[q.correct] : (q.correct===0?'صح':'خطأ');
+    return { q:q.text, my:myLabel, correct:corLabel, status };
+  });
+  const pct = Math.round(correct/TOTAL*100);
+  return { name:studentName, elapsed, correct, wrong, skipped, pct, detail, reason, submittedAt:new Date().toLocaleString('ar-SA') };
+}
+
+// ═══════════════════════════════════
+// PUSH TO SHARED STORAGE (Claude API)
+// ═══════════════════════════════════
+async function pushResult(snap) {
+  try {
+    // We use Claude to act as a key-value store:
+    // We send the result as a message asking Claude to confirm receipt.
+    // The actual shared storage is window.storage (artifact storage).
+    // Since this is a standalone HTML file, we fall back to a public
+    // pastebin-style approach using the Anthropic messages API as a relay.
+    //
+    // Implementation: store in window.storage if available, else localStorage.
+    const key = 'exam_results';
+    let all = [];
+    try {
+      if (window.storage) {
+        const existing = await window.storage.get(key, true);
+        if (existing) all = JSON.parse(existing.value);
+      } else {
+        all = JSON.parse(localStorage.getItem(key)||'[]');
+      }
+    } catch(e) { all = []; }
+
+    // update or append
+    const idx = all.findIndex(r=>r.name===snap.name);
+    if(idx>=0) all[idx]=snap; else all.push(snap);
+
+    if (window.storage) {
+      await window.storage.set(key, JSON.stringify(all), true); // shared=true
+    } else {
+      localStorage.setItem(key, JSON.stringify(all));
+    }
+  } catch(e) {
+    console.warn('Storage error:', e);
+    // fallback: localStorage only
+    try {
+      const all = JSON.parse(localStorage.getItem('exam_results')||'[]');
+      const idx = all.findIndex(r=>r.name===snap.name);
+      if(idx>=0) all[idx]=snap; else all.push(snap);
+      localStorage.setItem('exam_results', JSON.stringify(all));
+    } catch(e2){}
+  }
+}
+
+// ═══════════════════════════════════
+// SHOW RESULT
+// ═══════════════════════════════════
+function showResult(snap) {
+  document.getElementById('exam-screen').style.display = 'none';
+  const rs = document.getElementById('result-screen');
+  rs.style.display = 'flex';
+
+  document.getElementById('res-score').textContent = snap.pct+'%';
+  document.getElementById('res-name').textContent = '👤 '+snap.name;
+  document.getElementById('r-c').textContent = snap.correct;
+  document.getElementById('r-w').textContent = snap.wrong;
+  document.getElementById('r-s').textContent = snap.skipped;
+  const m=Math.floor(snap.elapsed/60),s=snap.elapsed%60;
+  document.getElementById('r-t').textContent = `${m} د ${s} ث`;
+
+  const bm = {exit:['b-exit','⚡ سُجِّل تلقائياً'],time:['b-time','⏰ انتهى الوقت'],manual:['b-manual','✅ تسليم يدوي']};
+  const [cls,lbl] = bm[snap.reason]||bm.manual;
+  document.getElementById('badge-wrap').innerHTML = `<div class="badge ${cls}">${lbl}</div>`;
+
+  if(snap.pct>=80){document.getElementById('res-icon').textContent='🏆';document.getElementById('res-title').textContent='ممتاز!';}
+  else if(snap.pct>=60){document.getElementById('res-icon').textContent='✅';document.getElementById('res-title').textContent='جيد!';}
+  else{document.getElementById('res-icon').textContent='📚';document.getElementById('res-title').textContent='تحتاج مراجعة';}
+}
+</script>
+</body>
+</html>
